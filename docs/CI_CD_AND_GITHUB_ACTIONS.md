@@ -41,13 +41,13 @@ When you open a PR, GitHub shows **Checks**: green if every step passed, red if 
 | File | When it runs | Purpose |
 |------|----------------|---------|
 | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | Push / PR to `main` or `master` | JDK **17** and **21** matrix; `mvn verify`; Spectral on `target/openapi.json`; uploads SBOM + JaCoCo HTML |
-| [`.github/workflows/dependency-review.yml`](../.github/workflows/dependency-review.yml) | Pull requests | Flags dependency changes with known vulnerabilities (uses GitHub Dependency graph) |
+| [`.github/workflows/dependency-review.yml`](../.github/workflows/dependency-review.yml) | Pull requests | **Optional.** Dependency Review — runs only if repo variable `ENABLE_DEPENDENCY_REVIEW` is `true` *and* [Dependency graph](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph) is enabled (see comments in the workflow file). |
 | [`.github/workflows/secrets-scan.yml`](../.github/workflows/secrets-scan.yml) | Push / PR | TruffleHog scan for leaked secrets in changed commits |
 | [`.github/workflows/semantic-pr.yml`](../.github/workflows/semantic-pr.yml) | Pull requests | Validates PR title against Conventional Commits-style prefixes |
 | [`.github/workflows/nightly-pitest.yml`](../.github/workflows/nightly-pitest.yml) | Daily schedule + manual | [PIT](https://pitest.org/) mutation tests (`-Ppitest`); uploads HTML report |
 | [`.github/dependabot.yml`](../.github/dependabot.yml) | Weekly | Opens PRs for Maven + GitHub Actions dependency bumps |
 
-**Note:** Dependency Review works out of the box on **public** repositories. Private repos may need GitHub Advanced Security. Docker-based deployment is intentionally **not** part of this lab.
+**Note:** [Dependency review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review) needs **Dependency graph** enabled under repo **Settings → Code security**. This repo’s workflow is **gated** by the Actions variable `ENABLE_DEPENDENCY_REVIEW=true` so CI does not fail when graph is off (see `.github/workflows/dependency-review.yml`). Docker-based deployment is intentionally **not** part of this lab.
 
 ---
 
@@ -187,6 +187,7 @@ Students then **cannot** push broken code straight to `main` without failing che
 | Spectral fails | Ensure `mvn verify` completed so `target/openapi.json` exists; fix OpenAPI output or adjust `.spectral.yaml` with team agreement. |
 | Semantic PR check fails | PR title needs conventional prefixes (`feat:`, `fix:`, …); edit the title or disable `.github/workflows/semantic-pr.yml` on your fork. |
 | Mutation / nightly job fails | Run `mvn -B test-compile org.pitest:pitest-maven:mutationCoverage -Ppitest` locally and inspect `target/pit-reports/`. |
+| Dependency review: “not supported” / graph error | Turn on **Dependency graph** (Settings → Code security). Until then, do **not** set `ENABLE_DEPENDENCY_REVIEW`; the workflow skips. To run review after enabling graph, set Actions variable `ENABLE_DEPENDENCY_REVIEW` = `true`. |
 
 ---
 

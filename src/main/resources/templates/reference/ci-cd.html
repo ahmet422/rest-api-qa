@@ -133,7 +133,7 @@
                         <strong>Artifact uploads (CI).</strong> Stores <code>bom.json</code> and JaCoCo HTML per JDK version for download from the Actions run—handy for assignments and debugging coverage locally vs CI.
                     </li>
                     <li class="mb-3">
-                        <strong>Dependency review workflow.</strong> On pull requests, GitHub compares declared dependencies against known vulnerabilities (requires dependency graph; available on public repos).
+                        <strong>Dependency review workflow (optional).</strong> Compares dependency changes on PRs to known vulnerabilities when <strong>Dependency graph</strong> is enabled and you set the repository Actions variable <code>ENABLE_DEPENDENCY_REVIEW</code> to <code>true</code>; otherwise the job is skipped so CI stays green.
                     </li>
                     <li class="mb-3">
                         <strong>Secret scan (TruffleHog).</strong> Scans changed commits for leaked credentials. Verified findings should block merges; tune noise via workflow options if a lesson adds intentional test tokens.

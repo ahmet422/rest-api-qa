@@ -1,4 +1,12 @@
-# Flags vulnerable dependency changes on pull requests (GitHub Dependency graph).
+# Flags vulnerable dependency changes on pull requests (requires Dependency graph).
+#
+# This job is OFF by default so forks/repos without Dependency graph don't get red CI.
+# To enable:
+#   1. Repo Settings → Security → Enable "Dependency graph"
+#      https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph
+#   2. Repo Settings → Secrets and variables → Actions → Variables → New repository variable:
+#      Name: ENABLE_DEPENDENCY_REVIEW   Value: true
+#
 name: Dependency review
 
 on:
@@ -10,6 +18,7 @@ permissions:
 
 jobs:
   dependency-review:
+    if: ${{ vars.ENABLE_DEPENDENCY_REVIEW == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
