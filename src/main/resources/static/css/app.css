@@ -1,0 +1,220 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+
+:root {
+    --app-font: "DM Sans", system-ui, sans-serif;
+    --app-display: "Fraunces", Georgia, serif;
+    --app-bg: #f1f5f9;
+    --app-surface: #ffffff;
+    --app-primary: #4f46e5;
+    --app-primary-hover: #4338ca;
+    --app-accent: #0d9488;
+    --app-muted: #64748b;
+    --app-border: rgba(15, 23, 42, 0.08);
+    --app-shadow: 0 4px 24px rgba(15, 23, 42, 0.07);
+    --app-shadow-hover: 0 12px 40px rgba(15, 23, 42, 0.12);
+    --app-radius: 1rem;
+    --app-nav-gradient: linear-gradient(120deg, #1e1b4b 0%, #4f46e5 45%, #7c3aed 100%);
+}
+
+body.app-body {
+    font-family: var(--app-font);
+    background: var(--app-bg);
+    color: #0f172a;
+    min-height: 100vh;
+}
+
+.app-navbar {
+    background: var(--app-nav-gradient);
+    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.35);
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+.app-navbar .navbar-brand {
+    font-family: var(--app-display);
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+}
+
+.app-navbar .nav-link {
+    font-weight: 500;
+    border-radius: 999px;
+    padding: 0.4rem 1rem !important;
+    margin: 0 0.15rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-navbar .nav-link:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.app-main-wrap {
+    max-width: 1200px;
+}
+
+.app-page-title {
+    font-family: var(--app-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: #0f172a;
+}
+
+.app-filter-card {
+    background: var(--app-surface);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    border: 1px solid var(--app-border);
+    padding: 1.25rem 1.5rem;
+}
+
+.app-book-card {
+    background: var(--app-surface);
+    border-radius: var(--app-radius);
+    border: 1px solid var(--app-border);
+    box-shadow: var(--app-shadow);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    height: 100%;
+    overflow: hidden;
+}
+
+.app-book-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--app-shadow-hover);
+}
+
+.app-book-card .card-title {
+    font-family: var(--app-display);
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.35;
+}
+
+.app-book-card .card-title a {
+    color: #0f172a;
+    text-decoration: none;
+}
+
+.app-book-card .card-title a:hover {
+    color: var(--app-primary);
+}
+
+.app-pill {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+}
+
+.app-pill-category {
+    background: rgba(79, 70, 229, 0.12);
+    color: #4338ca;
+}
+
+.app-pill-lang {
+    background: rgba(13, 148, 136, 0.14);
+    color: #0f766e;
+}
+
+.app-price {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--app-primary);
+}
+
+.app-detail-hero {
+    background: var(--app-surface);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    border: 1px solid var(--app-border);
+    padding: 2rem 2.25rem;
+}
+
+.app-form-card {
+    max-width: 42rem;
+    margin: 0 auto;
+    background: var(--app-surface);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    border: 1px solid var(--app-border);
+    padding: 2rem 2.25rem;
+}
+
+.app-login-card {
+    max-width: 420px;
+    margin: 0 auto;
+    background: var(--app-surface);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    border: 1px solid var(--app-border);
+    padding: 2rem;
+}
+
+.app-footer {
+    margin-top: auto;
+    padding: 2rem 0;
+    color: var(--app-muted);
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--app-primary);
+    --bs-btn-border-color: var(--app-primary);
+    --bs-btn-hover-bg: var(--app-primary-hover);
+    --bs-btn-hover-border-color: var(--app-primary-hover);
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: var(--app-primary);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.2);
+}
+
+.pagination .page-link {
+    border-radius: 0.5rem;
+    margin: 0 0.15rem;
+}
+
+.app-low-stock {
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+/* Reference: readable article line length inside wide cards */
+.reference-article {
+    max-width: 42rem;
+}
+
+.reference-article h2 {
+    font-family: var(--app-font);
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.reference-diagram {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: var(--app-radius);
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    box-shadow: var(--app-shadow);
+    text-align: center;
+}
+
+.reference-diagram-caption {
+    max-width: 42rem;
+}
+
+.reference-sql-result {
+    max-height: 28rem;
+    overflow: auto;
+}
+
+/* Let diagrams span the card while article text stays narrow */
+.reference-content .reference-diagram--breakout {
+    max-width: none;
+    width: 100%;
+    margin-left: 0;
+}

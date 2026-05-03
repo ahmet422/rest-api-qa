@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('This API · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('this-api')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <h1 class="app-page-title h4 mb-4">This API</h1>
+        <p>Base URL: your server origin (e.g. <code>http://localhost:8080</code>).</p>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr><th>Method</th><th>Path</th><th>Notes</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>POST</td><td><code>/api/login</code></td><td>JSON body <code>username</code>, <code>password</code> → JWT</td></tr>
+                <tr><td>GET</td><td><code>/api/books</code></td><td>Query: <code>page</code>, <code>size</code> (max 100), <code>sort</code>, <code>category</code>, <code>language</code>, <code>q</code></td></tr>
+                <tr><td>GET</td><td><code>/api/books/{id}</code></td><td>Single book</td></tr>
+                <tr><td>POST</td><td><code>/api/books</code></td><td>ADMIN — create</td></tr>
+                <tr><td>PUT</td><td><code>/api/books/{id}</code></td><td>ADMIN — replace</td></tr>
+                <tr><td>DELETE</td><td><code>/api/books/{id}</code></td><td>ADMIN — delete; second delete → <strong>404</strong></td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="small text-muted mb-0">Demo users: <code>admin</code> / <code>password</code> (ADMIN), <code>user</code> / <code>password</code> (USER read-only).</p>
+    </div>
+</main>
+</body>
+</html>

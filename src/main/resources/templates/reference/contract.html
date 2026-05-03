@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('API contract · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('contract')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <article class="reference-article">
+            <header class="mb-4 pb-3 border-bottom border-light">
+                <h1 class="app-page-title h3 mb-3">API contract (OpenAPI)</h1>
+                <p class="lead text-muted mb-0">What “contract” means here, why teams care, and how <strong>Swagger UI</strong> helps you explore this lab’s API without guessing.</p>
+            </header>
+
+            <section class="mb-4" aria-labelledby="section-contract">
+                <h2 id="section-contract" class="h5 mb-2">What is an API contract?</h2>
+                <p class="mb-2">A normal <strong>contract</strong> is a written agreement: both sides know the rules. An <strong>API contract</strong> is the same idea for software: it describes <em>what the server promises</em> and <em>what callers must send</em>—paths (URLs), HTTP methods, request bodies, headers, status codes, and the shape of responses.</p>
+                <p class="mb-2">It is not the implementation inside the server; it is the <strong>published surface</strong>—like a restaurant menu listing dishes and prices, not the recipe in the kitchen.</p>
+                <p class="mb-0">In this project the machine-readable contract is expressed in the <strong>OpenAPI</strong> format (often still called “Swagger spec” in conversation). Your browser can load a human-friendly view of that spec—see below.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-why">
+                <h2 id="section-why" class="h5 mb-2">Why do we need it?</h2>
+                <ul class="mb-0 ps-3">
+                    <li class="mb-2"><strong>Less guessing.</strong> Testers and front-end developers know which endpoints exist and what fields are required—without reading Java source line by line.</li>
+                    <li class="mb-2"><strong>Parallel work.</strong> Teams can agree on the contract first, then implement or automate against it.</li>
+                    <li class="mb-2"><strong>Better tests.</strong> You can design cases around documented status codes (success, validation errors, auth) like those described in <a th:href="@{/reference/rest-basics}">REST basics</a>.</li>
+                    <li class="mb-0"><strong>Living docs.</strong> When the app exposes OpenAPI (as SpringDoc does here), the description stays aligned with what the server actually serves—especially useful in class demos.</li>
+                </ul>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-swagger">
+                <h2 id="section-swagger" class="h5 mb-2">What is Swagger? Is it the same as OpenAPI?</h2>
+                <p class="mb-2"><strong>OpenAPI</strong> is the <strong>standard name</strong> for the specification file (YAML or JSON) that describes the API.</p>
+                <p class="mb-2"><strong>Swagger</strong> started as the earlier ecosystem around that idea; today people often say “Swagger” to mean <strong>Swagger UI</strong>—the interactive web page where you can read endpoints, see schemas, and sometimes “Try it out” and send requests.</p>
+                <p class="mb-0">Short memory trick: <strong>OpenAPI</strong> = the <em>document</em>; <strong>Swagger UI</strong> = a <em>friendly viewer</em> for that document. This lab serves both the raw JSON and the UI—links in the next section.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-this-lab">
+                <h2 id="section-this-lab" class="h5 mb-2">What to open in this lab</h2>
+                <p class="mb-3">Use these alongside the short route list on <a th:href="@{/reference/this-api}">This API</a>.</p>
+                <ul class="mb-0 ps-3">
+                    <li class="mb-2"><strong><a th:href="@{/swagger-ui.html}" target="_blank" rel="noopener">Swagger UI</a></strong> — browse operations, models, and try authenticated calls (JWT) when configured.</li>
+                    <li class="mb-0"><strong><a th:href="@{/v3/api-docs}" target="_blank" rel="noopener"><code>/v3/api-docs</code></a></strong> — raw OpenAPI JSON for tools (Postman import, code generators, linting).</li>
+                </ul>
+                <p class="text-muted small mt-3 mb-0">In Postman: <strong>Import → Link</strong> → paste your server URL + <code>/v3/api-docs</code>.</p>
+            </section>
+        </article>
+    </div>
+</main>
+</body>
+</html>

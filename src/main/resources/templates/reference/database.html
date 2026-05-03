@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Current database · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('database')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <article class="reference-article mb-4">
+            <h1 class="app-page-title h4 mb-3">Current database</h1>
+            <p class="text-muted small mb-3"><strong>ADMIN only.</strong> Explore live schema and run <strong>read-only</strong> SQL for teaching.
+                Writes (<code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, …) are blocked. Results are capped at 500 rows with a timeout.</p>
+
+            <h2 class="h6 text-uppercase text-muted mb-2" style="letter-spacing: 0.05em;">Tables</h2>
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr><th scope="col">Table</th><th scope="col">Purpose</th><th scope="col">Columns</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><code>users</code></td>
+                        <td class="small">Demo logins for the web UI and role checks.</td>
+                        <td class="small"><code>id</code>, <code>username</code>, <code>password_hash</code>, <code>role</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>books</code></td>
+                        <td class="small">Catalog rows shown in the app and API.</td>
+                        <td class="small"><code>id</code>, <code>title</code>, <code>author</code>, <code>isbn</code>, <code>price</code>, <code>stock</code>,
+                            <code>category</code>, <code>language</code>, <code>created_at</code>, <code>updated_at</code></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-muted mb-0">Flyway migrations live under <code>src/main/resources/db/migration/</code>. Try
+                <code>SELECT * FROM books WHERE category = 'Fiction'</code> or list columns via your DB’s catalog (e.g.
+                <code>information_schema.columns</code> on PostgreSQL).</p>
+        </article>
+
+        <h2 class="h6 text-uppercase text-muted mb-2 px-1" style="letter-spacing: 0.05em;">SQL console</h2>
+        <form class="mb-3" th:action="@{/reference/database/query}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <label for="sqlInput" class="form-label small text-muted">Query</label>
+            <textarea id="sqlInput" name="sql" class="form-control font-monospace mb-2" rows="5"
+                      spellcheck="false" th:text="${sqlDraft}"></textarea>
+            <button type="submit" class="btn btn-primary rounded-pill px-4">Run query</button>
+        </form>
+
+        <div th:if="${queryResult != null}">
+            <div th:if="${queryResult.errorMessage != null}"
+                 class="alert alert-warning border-0 rounded-3 mb-0" role="alert">
+                <strong>Could not run query.</strong>
+                <span class="d-block small mt-1" th:text="${queryResult.errorMessage}">Error</span>
+            </div>
+
+            <div th:if="${queryResult.errorMessage == null}">
+                <p class="small text-muted mb-2">
+                    <span th:text="${queryResult.rowCount}">0</span> row(s)
+                    <span th:if="${queryResult.truncated}" class="text-warning"> — showing first 500 rows only</span>
+                </p>
+                <div class="table-responsive reference-sql-result rounded-3 border" th:if="${!queryResult.columns.isEmpty()}">
+                    <table class="table table-sm table-striped mb-0 align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th th:each="col : ${queryResult.columns}" scope="col" class="small text-nowrap"
+                                th:text="${col}">col</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="row : ${queryResult.rows}">
+                            <td th:each="cell : ${row}" class="small font-monospace text-break"
+                                th:text="${cell != null ? cell : 'NULL'}">—</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small text-muted fst-italic mb-0 mt-2" th:if="${queryResult.columns.isEmpty()}">No rows returned.</p>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

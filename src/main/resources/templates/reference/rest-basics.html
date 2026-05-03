@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('REST basics · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('rest-basics')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <div class="reference-article">
+            <header class="mb-4 pb-3 border-bottom border-light">
+                <h1 class="app-page-title h3 mb-3">REST basics</h1>
+                <p class="lead text-muted mb-3">You don’t need to be a backend developer to understand APIs. This page is written like a short lesson—take it in order, pause on the metaphors, and come back to the <strong>Quick reference</strong> at the bottom before you practice.</p>
+                <p class="small text-muted fst-italic mb-0">Tip: when we say “client,” we mean whoever starts the request—the browser, Postman, or a test script—not “your customer.”</p>
+            </header>
+
+            <section class="mb-4" aria-labelledby="section-start">
+                <h2 id="section-start" class="h5 mb-3">Start here: how do apps even talk?</h2>
+                <p class="mb-2">Have you ever wondered how the <strong>screen you click</strong> and the <strong>server far away</strong> stay in sync—or how two separate systems (a mobile app and a bank, a shop website and a payment service) exchange information?</p>
+                <p class="mb-2">They don’t read each other’s minds. They send <strong>structured messages</strong> over the network, usually using <strong>HTTP</strong>—the same family of rules your browser uses to load a normal web page. A <strong>REST API</strong> is one popular style of designing those messages so everyone agrees: “this address means books,” “GET means read,” “here’s how success or failure looks.”</p>
+                <div class="rounded-3 border border-primary border-opacity-25 bg-primary bg-opacity-10 p-3 mt-3 mb-0">
+                    <p class="small fw-semibold text-primary mb-2">Metaphor you can reuse in class</p>
+                    <p class="small mb-0">Treat one HTTP request like <strong>sending a registered letter</strong>. You need an <strong>address</strong> (URL), a clear <strong>instruction</strong> on what to do (method), <strong>sticky notes</strong> for special handling (headers), and sometimes a <strong>parcel inside</strong> (body). The server sends a <strong>reply letter</strong> back: a status (“delivered / refused / wrong address”) and maybe more pages inside (response body).</p>
+                </div>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-client-server">
+                <h2 id="section-client-server" class="h5 mb-2">Client and server — who asks, who answers?</h2>
+                <p class="mb-2">In almost every web system you teach or test, work splits into two sides. The <strong>client</strong> is what sits close to the user: the browser tab, a mobile app, Postman, or an automated test runner. It <strong>starts</strong> the conversation (“please send me the book list”). The <strong>server</strong> is a program running somewhere else—often in a data centre or your laptop for demos—that <strong>waits</strong> for those asks, runs rules (validation, permissions), talks to a database if needed, and sends an <strong>answer</strong> back.</p>
+                <p class="mb-2">Between them is the <strong>network</strong> (LAN, Wi‑Fi, internet). Messages follow agreed rules—here, HTTP—so both sides understand the same verbs and status codes. One server can serve <strong>many</strong> clients at once; each client only cares about its own request–response pair.</p>
+                <p class="text-muted small reference-diagram-caption mb-0">In this lab: your browser or Postman plays <strong>client</strong>; the Spring Boot app is the <strong>server</strong>; the database sits <em>behind</em> the server (clients never connect to it directly).</p>
+            </section>
+        </div>
+
+            <div class="reference-diagram reference-diagram--breakout mb-4">
+                <p class="small text-muted text-start mb-2 px-1"><strong class="text-body">Diagram:</strong> request goes down the line; data and the reply come back.</p>
+                <pre class="mermaid">
+flowchart TB
+  subgraph cs_client [Client]
+    cl[Browser_Postman_or_tests]
+  end
+  subgraph cs_network [Network]
+    nw[HTTP_messages]
+  end
+  subgraph cs_server [Server]
+    app[Spring_Boot_application]
+    db[(Database)]
+  end
+  cl -->|1_request| nw
+  nw --> app
+  app -->|2_read_or_write| db
+  db -->|3_result| app
+  app -->|4_response| nw
+  nw -->|same_client| cl
+                </pre>
+            </div>
+
+        <div class="reference-article">
+            <section class="mb-4" aria-labelledby="section-what">
+                <h2 id="section-what" class="h5 mb-2">What is a REST API, in one breath?</h2>
+                <p>Imagine the server runs a <strong>library</strong>. It publishes <strong>addresses (URLs)</strong> for <strong>things (resources)</strong>—for example “all books” or “book number 42.” Your client picks a <strong>standard action (HTTP method)</strong>: look at the shelf, borrow something new, replace a whole record, or remove it. The server answers with a <strong>response</strong>: almost always a <strong>status code</strong> (three digits) and often a <strong>body</strong>—today usually written as <strong>JSON</strong> text.</p>
+                <p class="mb-0">In this lab the star resource is <code>books</code>. Exact paths live under <a th:href="@{/reference/this-api}">This API</a>.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-paths">
+                <h2 id="section-paths" class="h5 mb-2">Resources and paths (nouns, not verbs)</h2>
+                <p>Good REST style puts <strong>nouns in the URL</strong>, not commands like “getAllBooks.” The path names <em>what</em>; the method names <em>what you’re doing</em>.</p>
+                <ul>
+                    <li class="mb-1">A <strong>collection</strong> — <code>/api/books</code> — think “the whole shelf.”</li>
+                    <li class="mb-0">A <strong>single item</strong> — <code>/api/books/42</code> — “the book whose id is 42.”</li>
+                </ul>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-methods">
+                <h2 id="section-methods" class="h5 mb-3">The four methods you’ll use most</h2>
+                <p class="mb-3">They map to everyday testing work; they aren’t the entire HTTP encyclopedia.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col">Method</th>
+                            <th scope="col">Remember it as…</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><code>GET</code></td>
+                            <td><strong>Look, don’t touch.</strong> Read data; repeating it shouldn’t break anything.</td>
+                        </tr>
+                        <tr>
+                            <td><code>POST</code></td>
+                            <td><strong>Create something new.</strong> Here: add a book—or log in and “create” a token.</td>
+                        </tr>
+                        <tr>
+                            <td><code>PUT</code></td>
+                            <td><strong>Swap the whole thing.</strong> Same id, full replacement body.</td>
+                        </tr>
+                        <tr>
+                            <td><code>DELETE</code></td>
+                            <td><strong>Remove.</strong> Second delete in this app? See <a th:href="@{/reference/idempotency}">Idempotency</a>.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-headers">
+                <h2 id="section-headers" class="h5 mb-2">Headers — the sticky notes on your envelope</h2>
+                <p class="mb-2">Headers are small <strong>name: value</strong> lines that travel <em>with</em> the request or response. They don’t replace the body; they tell both sides <strong>how to interpret</strong> what follows.</p>
+                <ul class="mb-3">
+                    <li class="mb-2"><strong><code>Content-Type</code></strong> — “The body speaks this language.” For JSON payloads you’ll see <code>application/json</code>. If you forget it, the server may not parse your body.</li>
+                    <li class="mb-2"><strong><code>Authorization</code></strong> — “Here’s how you know who I am.” With JWT you’ll send <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+                    <li class="mb-2"><strong><code>Accept</code></strong> — “I’d prefer the reply in this format,” e.g. JSON. Servers can sometimes offer more than one format.</li>
+                    <li class="mb-0"><strong><code>Content-Length</code></strong> (often automatic) — how many bytes the body has. Handy when debugging “empty body” mysteries.</li>
+                </ul>
+                <p class="small text-muted fst-italic mb-0">Memory trick: if the <strong>body</strong> is the letter inside the envelope, <strong>headers</strong> are the printed instructions on the outside—still part of the same shipment.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-json-xml">
+                <h2 id="section-json-xml" class="h5 mb-2">JSON and XML — two ways to pack the same idea</h2>
+                <p class="mb-3">Both are just <strong>text formats</strong> for structured data. Many older enterprise systems love XML; most modern REST tutorials (including this lab) default to <strong>JSON</strong> because it tends to be shorter and quicker to read.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">JSON</th>
+                            <th scope="col">XML</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th scope="row" class="text-nowrap small">Shape</th>
+                            <td class="small">Curly braces <code>{ }</code>, arrays <code>[ ]</code>, “key”: value pairs.</td>
+                            <td class="small">Nested tags, like HTML: elements open and close.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="small">Tiny example</th>
+                            <td><code class="small">{"title":"Clean Code"}</code></td>
+                            <td><code class="small">&lt;book&gt;&lt;title&gt;Clean Code&lt;/title&gt;&lt;/book&gt;</code></td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="small">Verbosity</th>
+                            <td class="small">Usually compact—fewer characters on the wire.</td>
+                            <td class="small">Often more verbose; repeats tag names.</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="small">In this lab</th>
+                            <td class="small"><strong>Yes</strong> — requests and responses use JSON.</td>
+                            <td class="small">Not required here; you may still meet XML in legacy APIs elsewhere.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mb-0">Whether JSON or XML, the server still checks <code>Content-Type</code> so it opens the “parcel” with the right parser—like choosing subtitles vs. dubbing on the same movie.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-status">
+                <h2 id="section-status" class="h5 mb-2">Status codes — the summary line on the reply</h2>
+                <p class="mb-2">Every response begins with a <strong>three-digit code</strong>. Learn the families first; memorize favorites second.</p>
+                <ul>
+                    <li class="mb-1"><strong>2xx — success.</strong> Examples: <code>200 OK</code>, <code>201 Created</code>, <code>204 No Content</code> (success with nothing to show in the body).</li>
+                    <li class="mb-1"><strong>4xx — problem on the client side or permission.</strong> Examples: <code>400</code> bad input, <code>401</code> not authenticated, <code>403</code> authenticated but not allowed, <code>404</code> not found, <code>409</code> conflict (e.g. duplicate ISBN). Duplicate POST details: <a th:href="@{/reference/idempotency}">Idempotency</a>.</li>
+                    <li class="mb-0"><strong>5xx — server trouble.</strong> Log it and escalate; it’s usually not your test data’s fault.</li>
+                </ul>
+                <p class="text-muted small mb-0"><strong>401</strong> = “I don’t know you yet.” <strong>403</strong> = “I know you, but you can’t do that.”</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-auth">
+                <h2 id="section-auth" class="h5 mb-2">Logging in — your badge goes in a header</h2>
+                <p class="mb-0">This API uses <strong>JWT</strong>. Call <code>POST /api/login</code> (see <a th:href="@{/reference/this-api}">This API</a>), read the token from the response, then on later calls set <code>Authorization: Bearer &lt;token&gt;</code>. Same metaphor: the token is your <strong>visitor badge</strong>; the header is the clip that attaches it where reception expects it.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="section-next">
+                <h2 id="section-next" class="h5 mb-2">What to do next</h2>
+                <ul class="mb-0">
+                    <li class="mb-1"><a th:href="@{/reference/this-api}">This API</a> — paths and methods for this lab</li>
+                    <li class="mb-1"><a th:href="@{/reference/idempotency}">Idempotency</a> — what happens when you repeat writes</li>
+                    <li><a th:href="@{/reference/contract}">API contract (Swagger)</a> — try calls and inspect schemas interactively</li>
+                </ul>
+            </section>
+
+            <hr class="my-4 opacity-25" aria-hidden="true"/>
+
+            <section aria-labelledby="section-cheat" class="mb-0">
+                <h2 id="section-cheat" class="h6 text-uppercase text-muted mb-3" style="letter-spacing: 0.05em;">Quick reference</h2>
+                <ul class="list-unstyled small text-muted mb-0">
+                    <li class="mb-2"><strong class="text-body">Client / server</strong> — client sends the request first; server hosts logic + data and returns the response.</li>
+                    <li class="mb-2"><strong class="text-body">Letter metaphor</strong> — URL + method + headers + optional body out; status + headers + optional body back.</li>
+                    <li class="mb-2"><strong class="text-body">Resource</strong> — thing the API exposes (<code>books</code>). Paths use nouns.</li>
+                    <li class="mb-2"><strong class="text-body">Methods</strong> — GET read, POST create, PUT replace, DELETE remove.</li>
+                    <li class="mb-2"><strong class="text-body">Headers</strong> — <code>Content-Type</code>, <code>Authorization</code>, <code>Accept</code>, …</li>
+                    <li class="mb-2"><strong class="text-body">JSON vs XML</strong> — both encode structure; JSON is usual for REST here.</li>
+                    <li class="mb-0"><strong class="text-body">Token</strong> — <code>Authorization: Bearer &lt;token&gt;</code> after login.</li>
+                </ul>
+            </section>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'base',
+                themeVariables: {
+                    primaryColor: '#e0e7ff',
+                    primaryTextColor: '#0f172a',
+                    primaryBorderColor: '#4f46e5',
+                    lineColor: '#64748b',
+                    secondaryColor: '#f1f5f9',
+                    tertiaryColor: '#f8fafc',
+                    fontFamily: '"DM Sans", system-ui, sans-serif'
+                },
+                flowchart: { curve: 'basis' }
+            });
+        </script>
+    </div>
+</main>
+</body>
+</html>

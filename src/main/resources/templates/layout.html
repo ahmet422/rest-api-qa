@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:fragment="layout (pageTitle, content)">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${pageTitle}">Bookstore Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link th:href="@{/css/app.css}" rel="stylesheet"/>
+</head>
+<body class="app-body d-flex flex-column">
+<nav class="navbar navbar-expand-lg navbar-dark app-navbar mb-4">
+    <div class="container app-main-wrap">
+        <a class="navbar-brand" th:href="@{/books}">Mindtek Books</a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMain">
+            <ul class="navbar-nav me-auto align-items-lg-center mt-3 mt-lg-0">
+                <li class="nav-item"><a class="nav-link text-white" th:href="@{/books}">Catalog</a></li>
+                <li class="nav-item"><a class="nav-link text-white" th:href="@{/reference}">Course reference</a></li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link text-white bg-white bg-opacity-10" th:href="@{/books/new}">+ Add book</a>
+                </li>
+            </ul>
+            <form sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2 mt-3 mt-lg-0" th:action="@{/logout}"
+                  method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <span class="navbar-text text-white-50 small" sec:authentication="name"></span>
+                <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-3">Log out</button>
+            </form>
+        </div>
+    </div>
+</nav>
+<main class="container app-main-wrap flex-grow-1 pb-5" th:replace="${content}"></main>
+<footer class="app-footer border-top border-light mt-5">
+    <div class="container app-main-wrap text-center">
+        <span class="text-muted">QA lab — REST APIs &amp; JWT · Built with Spring Boot</span>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

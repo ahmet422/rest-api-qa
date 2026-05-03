@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Log in', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div class="app-login-card">
+        <h1 class="app-page-title h4 mb-4 text-center">Sign in</h1>
+        <div th:if="${param.error}" class="alert alert-danger small">Invalid username or password.</div>
+        <div th:if="${param.logout}" class="alert alert-success small">You have been logged out.</div>
+        <form th:action="@{/login}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <div class="mb-3">
+                <label class="form-label fw-semibold" for="username">Username</label>
+                <input class="form-control form-control-lg" id="username" name="username" autocomplete="username"/>
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="password">Password</label>
+                <input class="form-control form-control-lg" id="password" name="password" type="password"
+                       autocomplete="current-password"/>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Continue</button>
+        </form>
+        <p class="text-muted small mt-4 mb-0 text-center">
+            Demo: <code>admin</code> / <code>password</code> · <code>user</code> / <code>password</code>
+        </p>
+    </div>
+</main>
+</body>
+</html>

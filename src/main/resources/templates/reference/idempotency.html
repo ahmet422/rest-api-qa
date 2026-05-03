@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Idempotency · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('idempotency')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <h1 class="app-page-title h4 mb-4">Idempotency (how this app behaves)</h1>
+        <ul class="mb-0 ps-3">
+            <li class="mb-2"><strong>GET</strong> — safe to repeat; should not change server state.</li>
+            <li class="mb-2"><strong>PUT</strong> — same full body twice → same resulting resource (idempotent).</li>
+            <li class="mb-2"><strong>DELETE</strong> — first delete succeeds (204); deleting again returns <strong>404</strong>.</li>
+            <li><strong>POST</strong> — creates a new row; duplicate <strong>ISBN</strong> → <strong>409 Conflict</strong>.</li>
+        </ul>
+    </div>
+</main>
+</body>
+</html>

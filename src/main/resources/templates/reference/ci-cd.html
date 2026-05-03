@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('CI/CD · Reference', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('ci-cd')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <article class="reference-article">
+            <header class="mb-4 pb-3 border-bottom border-light">
+                <h1 class="app-page-title h3 mb-3">CI/CD — for QA testers</h1>
+                <p class="lead text-muted mb-0">This page is written for testers joining a dev team: what <strong>Continuous Integration</strong> and <strong>Continuous Delivery / Deployment</strong> mean, why they matter to quality, how <strong>environments</strong> line up, how <strong>GitHub Actions</strong> fits this lab, and what usually happens in industry.</p>
+            </header>
+
+            <section class="mb-4" aria-labelledby="sec-what">
+                <h2 id="sec-what" class="h5 mb-2">What is CI/CD?</h2>
+                <p class="mb-2"><strong>Continuous Integration (CI)</strong> — Developers merge work into a shared branch often. Each merge triggers an <strong>automated pipeline</strong>: build the app, run unit/API tests, sometimes lint or security scans. The team sees <strong>pass or fail quickly</strong>, on a machine that is not “someone’s laptop.”</p>
+                <p class="mb-3"><strong>Continuous Delivery / Deployment (CD)</strong> — After CI is green, changes move toward <strong>real users</strong>. <em>Delivery</em> usually means “release-ready artifact” (installer, container, deployable package). <em>Deployment</em> means actually pushing it to a server. CD can be manual approval or fully automated.</p>
+                <p class="small fw-semibold text-primary mb-2">Examples (easy to remember)</p>
+                <ul class="small mb-0 ps-3">
+                    <li class="mb-2"><strong>Without CI:</strong> Five developers merge Friday afternoon. Monday morning QA finds login broken—nobody knows which change caused it.</li>
+                    <li class="mb-2"><strong>With CI:</strong> The moment a change breaks compilation or an automated API test, the pipeline fails and the pull request is blocked until fixed.</li>
+                    <li class="mb-0"><strong>CD in one sentence:</strong> “When CI is green and the business agrees, the same tested bits go to staging or production without re-building by hand on someone’s machine.”</li>
+                </ul>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-why-qa">
+                <h2 id="sec-why-qa" class="h5 mb-2">Why is it needed — especially for QA?</h2>
+                <ul class="mb-3 ps-3">
+                    <li class="mb-2"><strong>Early signal (shift-left).</strong> You get cheap feedback before hours go into manual regression. Automated checks don’t replace exploration—they guard core paths and contracts.</li>
+                    <li class="mb-2"><strong>Repeatable evidence.</strong> “It passed on CI” is a shared baseline: same JDK, same command (<code>mvn verify</code>), same clean checkout. That reduces “works on my machine” debates.</li>
+                    <li class="mb-2"><strong>Gate before merge.</strong> Many teams require green checks on pull requests. QA benefits because risky code is less likely to land on <code>main</code> silently.</li>
+                    <li class="mb-0"><strong>Frees time for deeper testing.</strong> Robots run smoke/API regression every push; you spend calories on edge cases, usability, and integration risks CI doesn’t cover.</li>
+                </ul>
+                <p class="small text-muted fst-italic mb-0">Example: If this bookstore API loses JWT validation, an integration test in CI should fail before that build is promoted to QA or prod.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-env">
+                <h2 id="sec-env" class="h5 mb-3">Environments: local, dev, QA, prod</h2>
+                <p class="mb-3 small text-muted">Names vary by company (“test”, “staging”, “pre-prod”). The idea is <strong>progressive trust</strong>: cheap experiments first, real users last.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th scope="col">Environment</th>
+                            <th scope="col">Typical purpose</th>
+                            <th scope="col">QA angle</th>
+                        </tr>
+                        </thead>
+                        <tbody class="small">
+                        <tr>
+                            <td><strong>Local</strong></td>
+                            <td>Developer or tester machine; fast feedback while coding or scripting tests.</td>
+                            <td>You run the app + Postman/REST Assured here (this lab uses H2 on <code>dev</code> profile).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dev</strong></td>
+                            <td>Shared unstable server; integrates latest branches; may break often.</td>
+                            <td>Smoke tests, API contract checks, pairing with devs; expect churn.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QA / Test</strong></td>
+                            <td>Candidate build meant for structured test cycles; closer to production settings.</td>
+                            <td>Full regression, exploratory testing, bug bashes; sign-off often tied to release.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prod</strong></td>
+                            <td>Real customers, real data, real money and reputation.</td>
+                            <td>Monitoring, production verification after deploy, incident response—not where you try risky experiments.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="small mb-0"><strong>Practice tip:</strong> Always know <em>which URL and data set</em> you are hitting. “Bug in QA” that was actually reproduced on an old dev server wastes everyone’s time.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-industry">
+                <h2 id="sec-industry" class="h5 mb-2">How this works in IT — and QA-friendly best practices</h2>
+                <ul class="mb-3 ps-3">
+                    <li class="mb-2"><strong>Pipeline stages.</strong> Typical flow: build → unit tests → integration tests → publish artifact → deploy to dev/QA → manual/automated gates → prod. CI covers early stages; CD covers promotion.</li>
+                    <li class="mb-2"><strong>Branch strategy.</strong> Short-lived feature branches, pull requests, reviews, required checks. Trunk (<code>main</code>) stays releasable when discipline holds.</li>
+                    <li class="mb-2"><strong>Test pyramid.</strong> Many fast unit tests, fewer integration/API tests, even fewer end-to-end UI tests—each layer runs in CI where practical.</li>
+                    <li class="mb-2"><strong>Flaky tests.</strong> Intermittent failures erode trust. Teams treat flakiness as debt: quarantine, fix, or replace—QA should flag unreliable automation loudly.</li>
+                    <li class="mb-2"><strong>Configuration &amp; secrets.</strong> Non-prod uses non-prod databases and keys. Test data must never default to copying real customer PII without controls.</li>
+                    <li class="mb-0"><strong>Definition of Done.</strong> Often includes “CI green + reviewed + tested in QA environment.” Align with your team so expectations match reality.</li>
+                </ul>
+                <p class="small text-muted mb-0">In mature orgs, testers help choose what belongs in CI (smoke suite), what runs nightly (full regression), and what stays manual (exploratory charters).</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-actions">
+                <h2 id="sec-actions" class="h5 mb-2">GitHub Actions — in this lab’s context</h2>
+                <p class="mb-2"><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions</a> runs workflows when events happen on GitHub (push, pull request, schedule, etc.). Workflows are YAML files under <code>.github/workflows/</code>.</p>
+                <p class="mb-2">This repository ships <strong><code>.github/workflows/ci.yml</code></strong>. On each push or pull request to <code>main</code> or <code>master</code>, GitHub spins up a clean Linux runner, installs <strong>JDK 17</strong>, and runs <code>mvn -B verify</code> — the same automated checks you can run locally. Results appear under the repo’s <strong>Actions</strong> tab and as <strong>Checks</strong> on pull requests.</p>
+                <p class="small text-muted mb-0">That is <strong>CI</strong> (automated build + test). It is not deploying this app to Azure/AWS/GCP—that would be extra CD steps not configured here.</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-cycle">
+                <h2 id="sec-cycle" class="h5 mb-2">Classroom demo: branch → PR → green CI → merge</h2>
+                <ol class="small mb-3 ps-3">
+                    <li class="mb-1">Create a branch (e.g. <code>lesson/ci-demo</code>).</li>
+                    <li class="mb-1">Make a tiny change (README line or <code>pom.xml</code> version bump).</li>
+                    <li class="mb-1">Push and open a <strong>Pull Request</strong> into <code>main</code> or <code>master</code>.</li>
+                    <li class="mb-1">Watch <strong>Checks</strong> until the workflow passes.</li>
+                    <li class="mb-0">Merge after review — optional: enable branch protection to require green CI.</li>
+                </ol>
+                <p class="small mb-0">Step-by-step commands, troubleshooting, and a status-badge snippet: <code>docs/CI_CD_AND_GITHUB_ACTIONS.md</code> in your repo clone.</p>
+            </section>
+
+            <section class="mb-0" aria-labelledby="sec-links">
+                <h2 id="sec-links" class="h5 mb-2">Related in this course</h2>
+                <ul class="mb-0 ps-3">
+                    <li class="mb-1"><a th:href="@{/reference}">Overview</a> — architecture of this app.</li>
+                    <li class="mb-1"><a th:href="@{/reference/contract}">API contract (Swagger)</a> — what “contract” means for testing.</li>
+                    <li class="mb-0"><a th:href="@{/reference/this-api}">This API</a> — endpoints to align automation with.</li>
+                </ul>
+            </section>
+        </article>
+    </div>
+</main>
+</body>
+</html>

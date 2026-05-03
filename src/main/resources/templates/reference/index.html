@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: layout('Course reference · Overview', ~{::main})}">
+<body>
+<main th:fragment="main">
+    <div th:replace="~{reference/nav-fragment :: tabs ('overview')}"></div>
+    <div class="reference-content card border-0 shadow-sm rounded-4 p-4 p-md-5">
+        <article class="reference-article mb-4">
+            <h1 class="app-page-title h3 mb-3">Overview</h1>
+            <p class="lead text-muted mb-3">How this lab fits together: a browser and an API can both talk to the <strong>same</strong> Spring app and the <strong>same</strong> database—through two different “front doors” and two ways to sign in.</p>
+            <p class="mb-0">Use the section buttons at the top to open <a th:href="@{/reference/rest-basics}">REST basics</a> and
+                <a th:href="@{/reference/this-api}">This API</a> when you go deeper. Below is the zoomed-out view for the classroom whiteboard or projector.</p>
+        </article>
+
+        <div class="mb-5">
+            <div class="reference-article">
+                <h2 class="h5 mb-2">1. Request journey</h2>
+                <p class="text-muted small reference-diagram-caption mb-3">Same database for the website and the REST API. A click in the browser follows the <strong>Web</strong> path; Postman or automated tests use the <strong>REST</strong> path. Both go through <strong>services</strong> and <strong>JPA</strong> to the DB, then the answer flows back (HTML to the browser, JSON to the client).</p>
+            </div>
+            <div class="reference-diagram">
+                <pre class="mermaid">
+flowchart TB
+  subgraph clients [Your_clients]
+    br[Browser]
+    cl[Postman_or_tests]
+  end
+  subgraph app [This_Spring_Boot_app]
+    w[Web_MVC_Thymeleaf]
+    a[REST_controllers]
+    s[Service_layer]
+    r[JPA_Repository]
+  end
+  db[(Database)]
+  br -->|forms_links_session| w
+  cl -->|JSON_Bearer_JWT| a
+  w --> s
+  a --> s
+  s --> r
+  r <--> db
+  s -->|HTML| w
+  s -->|JSON| a
+  w -->|page| br
+  a -->|body_status| cl
+                </pre>
+            </div>
+        </div>
+
+        <div class="mb-5">
+            <div class="reference-article">
+                <h2 class="h5 mb-2">2. USER vs ADMIN</h2>
+                <p class="text-muted small reference-diagram-caption mb-3">Everyone who is signed in can browse. Only <code>ROLE_ADMIN</code> gets create/update/delete in the UI and in the API. A USER who calls a write endpoint receives <strong>403 Forbidden</strong> after authentication succeeds.</p>
+            </div>
+            <div class="reference-diagram">
+                <pre class="mermaid">
+flowchart TB
+  ur_user[USER]
+  ar_admin[ADMIN]
+  ur_user --> uw[Web_catalog_and_reference]
+  ur_user --> ug[GET_api_books_only]
+  ar_admin --> uw
+  ar_admin --> ug
+  ar_admin --> aw[Add_edit_delete_UI]
+  ar_admin --> aa[POST_PUT_DELETE_API]
+  ug -.->|mutate_as_USER| err403[403_Forbidden]
+                </pre>
+            </div>
+        </div>
+
+        <div class="mb-0">
+            <div class="reference-article">
+                <h2 class="h5 mb-2">3. Two ways to authenticate</h2>
+                <p class="text-muted small reference-diagram-caption mb-3">The <strong>website</strong> uses form login: the server stores a <strong>session</strong> and the browser stores a <strong>cookie</strong> (CSRF tokens protect forms). The <strong>REST API</strong> under <code>/api</code> is <strong>stateless</strong>: you obtain a <strong>JWT</strong> from <code>POST /api/login</code> and send it on every request. Roles exist in both worlds so USER and ADMIN behave consistently.</p>
+            </div>
+            <div class="reference-diagram">
+                <pre class="mermaid">
+flowchart TB
+  subgraph webLane [Browser_session]
+    f[Login_form]
+    c[Session_cookie]
+    p[Thymeleaf_pages]
+    f --> c
+    c --> p
+  end
+  subgraph apiLane [JWT_stateless]
+    l[POST_api_login]
+    j[JWT]
+    m[api_calls_Bearer]
+    l --> j
+    j --> m
+  end
+  sec[Spring_Security_roles]
+  p --> sec
+  m --> sec
+                </pre>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+        <script>
+            mermaid.initialize({
+                startOnLoad: true,
+                theme: 'base',
+                themeVariables: {
+                    primaryColor: '#e0e7ff',
+                    primaryTextColor: '#0f172a',
+                    primaryBorderColor: '#4f46e5',
+                    lineColor: '#64748b',
+                    secondaryColor: '#f1f5f9',
+                    tertiaryColor: '#f8fafc',
+                    fontFamily: '"DM Sans", system-ui, sans-serif'
+                },
+                flowchart: { curve: 'basis' }
+            });
+        </script>
+    </div>
+</main>
+</body>
+</html>

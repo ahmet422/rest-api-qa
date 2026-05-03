@@ -1,0 +1,25 @@
+# Runs automated checks on every push and pull request — see docs/CI_CD_AND_GITHUB_ACTIONS.md
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Run tests (Maven verify)
+        run: mvn -B verify

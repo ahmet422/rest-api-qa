@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<th:block th:fragment="tabs(active)">
+    <div class="reference-nav-card rounded-4 border border-light bg-white p-3 mb-4 shadow-sm">
+        <div class="small text-muted text-uppercase fw-semibold mb-3" style="letter-spacing: 0.06em;">Course reference</div>
+        <nav class="reference-tabs d-flex flex-wrap gap-2" aria-label="Reference sections">
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference}"
+               th:classappend="${active == 'overview'} ? ' btn-primary' : ' btn-outline-secondary'">Overview</a>
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/rest-basics}"
+               th:classappend="${active == 'rest-basics'} ? ' btn-primary' : ' btn-outline-secondary'">REST basics</a>
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/this-api}"
+               th:classappend="${active == 'this-api'} ? ' btn-primary' : ' btn-outline-secondary'">This API</a>
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/idempotency}"
+               th:classappend="${active == 'idempotency'} ? ' btn-primary' : ' btn-outline-secondary'">Idempotency</a>
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/contract}"
+               th:classappend="${active == 'contract'} ? ' btn-primary' : ' btn-outline-secondary'">API contract (Swagger)</a>
+            <a class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/ci-cd}"
+               th:classappend="${active == 'ci-cd'} ? ' btn-primary' : ' btn-outline-secondary'">CI/CD</a>
+            <a sec:authorize="hasRole('ADMIN')" class="btn btn-sm rounded-pill px-3 reference-tab"
+               th:href="@{/reference/database}"
+               th:classappend="${active == 'database'} ? ' btn-primary' : ' btn-outline-secondary'">Current database</a>
+        </nav>
+    </div>
+</th:block>
+</body>
+</html>

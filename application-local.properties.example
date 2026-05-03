@@ -1,0 +1,11 @@
+# Copy to application-local.properties (gitignored) and fill in your Supabase credentials.
+# Run with: SPRING_PROFILES_ACTIVE=local,spring.config.additional-location=file:./application-local.properties
+# Or place application-local.properties next to pom.xml and use:
+#   spring.config.import=optional:file:./application-local.properties
+
+spring.datasource.url=jdbc:postgresql://YOUR_PROJECT.supabase.co:5432/postgres?sslmode=require
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_PASSWORD
+
+# HS256 secret — must be >= 256 bits (32+ chars). Generate a long random string for real use.
+app.jwt.secret=replace-with-a-long-random-secret-at-least-32-characters!!
