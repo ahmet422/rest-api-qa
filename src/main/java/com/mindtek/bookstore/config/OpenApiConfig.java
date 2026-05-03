@@ -10,20 +10,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    OpenAPI bookstoreOpenAPI() {
-        return new OpenAPI()
-                .info(
-                        new Info()
-                                .title("Bookstore API Lab")
-                                .description("Teaching API — JWT on /api/books (see /api/login)."))
-                .components(
-                        new Components()
-                                .addSecuritySchemes(
-                                        "bearer-jwt",
-                                        new SecurityScheme()
-                                                .type(SecurityScheme.Type.HTTP)
-                                                .scheme("bearer")
-                                                .bearerFormat("JWT")));
-    }
+  @Bean
+  OpenAPI bookstoreOpenAPI() {
+    return new OpenAPI()
+        .info(
+            new Info()
+                .title("Bookstore API Lab")
+                .version("1.0.0")
+                .description("Teaching API — JWT on /api/books (see /api/login)."))
+        .components(
+            new Components()
+                .addSecuritySchemes(
+                    "bearer-jwt",
+                    new SecurityScheme()
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT")));
+  }
 }

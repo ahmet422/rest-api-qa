@@ -15,31 +15,31 @@ import org.springframework.web.bind.annotation.RequestParam;
 @PreAuthorize("hasRole('ADMIN')")
 public class ReferenceDatabaseController {
 
-    private final ReadOnlySqlConsoleService sqlConsoleService;
+  private final ReadOnlySqlConsoleService sqlConsoleService;
 
-    public ReferenceDatabaseController(ReadOnlySqlConsoleService sqlConsoleService) {
-        this.sqlConsoleService = sqlConsoleService;
-    }
+  public ReferenceDatabaseController(ReadOnlySqlConsoleService sqlConsoleService) {
+    this.sqlConsoleService = sqlConsoleService;
+  }
 
-    @GetMapping
-    public String page(Model model) {
-        model.addAttribute("sqlDraft", "SELECT * FROM books LIMIT 20;");
-        return "reference/database";
-    }
+  @GetMapping
+  public String page(Model model) {
+    model.addAttribute("sqlDraft", "SELECT * FROM books LIMIT 20;");
+    return "reference/database";
+  }
 
-    @PostMapping("/query")
-    public String runQuery(@RequestParam(value = "sql", required = false) String sql, Model model) {
-        model.addAttribute("sqlDraft", sql != null ? sql : "");
-        if (sql == null || sql.isBlank()) {
-            model.addAttribute("queryResult", SqlConsoleResult.error("Enter a SQL query."));
-            return "reference/database";
-        }
-        try {
-            SqlConsoleResult result = sqlConsoleService.execute(sql);
-            model.addAttribute("queryResult", result);
-        } catch (IllegalArgumentException ex) {
-            model.addAttribute("queryResult", SqlConsoleResult.error(ex.getMessage()));
-        }
-        return "reference/database";
+  @PostMapping("/query")
+  public String runQuery(@RequestParam(value = "sql", required = false) String sql, Model model) {
+    model.addAttribute("sqlDraft", sql != null ? sql : "");
+    if (sql == null || sql.isBlank()) {
+      model.addAttribute("queryResult", SqlConsoleResult.error("Enter a SQL query."));
+      return "reference/database";
     }
+    try {
+      SqlConsoleResult result = sqlConsoleService.execute(sql);
+      model.addAttribute("queryResult", result);
+    } catch (IllegalArgumentException ex) {
+      model.addAttribute("queryResult", SqlConsoleResult.error(ex.getMessage()));
+    }
+    return "reference/database";
+  }
 }

@@ -16,29 +16,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-    public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+  public JwtAuthenticationEntryPoint(ObjectMapper objectMapper) {
+    this.objectMapper = objectMapper;
+  }
 
-    @Override
-    public void commence(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException)
-            throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        ApiError body =
-                new ApiError(
-                        Instant.now().toString(),
-                        401,
-                        ApiError.CODE_UNAUTHORIZED,
-                        "Authentication required",
-                        request.getRequestURI(),
-                        List.of(),
-                        RequestIdAccessor.current(request));
-        objectMapper.writeValue(response.getOutputStream(), body);
-    }
+  @Override
+  public void commence(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      AuthenticationException authException)
+      throws IOException {
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    ApiError body =
+        new ApiError(
+            Instant.now().toString(),
+            401,
+            ApiError.CODE_UNAUTHORIZED,
+            "Authentication required",
+            request.getRequestURI(),
+            List.of(),
+            RequestIdAccessor.current(request));
+    objectMapper.writeValue(response.getOutputStream(), body);
+  }
 }

@@ -29,45 +29,46 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "bearer-jwt")
 public class BookRestController {
 
-    private final BookService bookService;
+  private final BookService bookService;
 
-    public BookRestController(BookService bookService) {
-        this.bookService = bookService;
-    }
+  public BookRestController(BookService bookService) {
+    this.bookService = bookService;
+  }
 
-    @GetMapping
-    public Page<BookResponse> list(
-            @RequestParam(defaultValue = "0") @Min(0) int page,
-            @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String language,
-            @RequestParam(required = false) String q) {
-        return bookService.findPage(page, size, sort, category, language, q);
-    }
+  @GetMapping
+  public Page<BookResponse> list(
+      @RequestParam(defaultValue = "0") @Min(0) int page,
+      @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
+      @RequestParam(required = false) String sort,
+      @RequestParam(required = false) String category,
+      @RequestParam(required = false) String language,
+      @RequestParam(required = false) String q) {
+    return bookService.findPage(page, size, sort, category, language, q);
+  }
 
-    @GetMapping("/{id}")
-    public BookResponse get(@PathVariable Long id) {
-        return bookService.getById(id);
-    }
+  @GetMapping("/{id}")
+  public BookResponse get(@PathVariable Long id) {
+    return bookService.getById(id);
+  }
 
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookCreateRequest request) {
-        BookResponse created = bookService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
+  @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<BookResponse> create(@Valid @RequestBody BookCreateRequest request) {
+    BookResponse created = bookService.create(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(created);
+  }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public BookResponse replace(@PathVariable Long id, @Valid @RequestBody BookUpdateRequest request) {
-        return bookService.replace(id, request);
-    }
+  @PutMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public BookResponse replace(
+      @PathVariable Long id, @Valid @RequestBody BookUpdateRequest request) {
+    return bookService.replace(id, request);
+  }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        bookService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    bookService.delete(id);
+    return ResponseEntity.noContent().build();
+  }
 }

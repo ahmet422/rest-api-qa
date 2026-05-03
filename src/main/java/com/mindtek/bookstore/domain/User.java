@@ -13,45 +13,45 @@ import jakarta.persistence.Table;
 @Table(name = "users")
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true, length = 64)
-    private String username;
+  @Column(nullable = false, unique = true, length = 64)
+  private String username;
 
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
+  @Column(name = "password_hash", nullable = false)
+  private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
-    private Role role;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 32)
+  private Role role;
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public String getUsername() {
-        return username;
-    }
+  public String getUsername() {
+    return username;
+  }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+  public void setUsername(String username) {
+    this.username = username;
+  }
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+  public String getPasswordHash() {
+    return passwordHash;
+  }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
+  public void setPasswordHash(String passwordHash) {
+    this.passwordHash = passwordHash;
+  }
 
-    public Role getRole() {
-        return role;
-    }
+  public Role getRole() {
+    return role;
+  }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
+  public void setRole(Role role) {
+    this.role = role;
+  }
 }

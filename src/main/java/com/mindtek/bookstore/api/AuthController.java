@@ -22,36 +22,35 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirements
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-    private final long expirationMs;
+  private final AuthenticationManager authenticationManager;
+  private final JwtService jwtService;
+  private final long expirationMs;
 
-    public AuthController(
-            AuthenticationManager authenticationManager,
-            JwtService jwtService,
-            @Value("${app.jwt.expiration-ms}") long expirationMs) {
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-        this.expirationMs = expirationMs;
-    }
+  public AuthController(
+      AuthenticationManager authenticationManager,
+      JwtService jwtService,
+      @Value("${app.jwt.expiration-ms}") long expirationMs) {
+    this.authenticationManager = authenticationManager;
+    this.jwtService = jwtService;
+    this.expirationMs = expirationMs;
+  }
 
-    @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
-        try {
-            Authentication authentication =
-                    authenticationManager.authenticate(
-                            new UsernamePasswordAuthenticationToken(
-                                    request.username(), request.password()));
-            UserDetails principal = (UserDetails) authentication.getPrincipal();
-            String role =
-                    principal.getAuthorities().stream()
-                            .findFirst()
-                            .map(a -> a.getAuthority().replace("ROLE_", ""))
-                            .orElse("USER");
-            String token = jwtService.createToken(principal.getUsername(), role);
-            return new LoginResponse(token, "Bearer", expirationMs / 1000);
-        } catch (BadCredentialsException ex) {
-            throw new UnauthorizedException();
-        }
+  @PostMapping("/login")
+  public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+    try {
+      Authentication authentication =
+          authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+      UserDetails principal = (UserDetails) authentication.getPrincipal();
+      String role =
+          principal.getAuthorities().stream()
+              .findFirst()
+              .map(a -> a.getAuthority().replace("ROLE_", ""))
+              .orElse("USER");
+      String token = jwtService.createToken(principal.getUsername(), role);
+      return new LoginResponse(token, "Bearer", expirationMs / 1000);
+    } catch (BadCredentialsException ex) {
+      throw new UnauthorizedException();
     }
+  }
 }

@@ -87,9 +87,64 @@
 
             <section class="mb-4" aria-labelledby="sec-actions">
                 <h2 id="sec-actions" class="h5 mb-2">GitHub Actions — in this lab’s context</h2>
-                <p class="mb-2"><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions</a> runs workflows when events happen on GitHub (push, pull request, schedule, etc.). Workflows are YAML files under <code>.github/workflows/</code>.</p>
-                <p class="mb-2">This repository ships <strong><code>.github/workflows/ci.yml</code></strong>. On each push or pull request to <code>main</code> or <code>master</code>, GitHub spins up a clean Linux runner, installs <strong>JDK 17</strong>, and runs <code>mvn -B verify</code> — the same automated checks you can run locally. Results appear under the repo’s <strong>Actions</strong> tab and as <strong>Checks</strong> on pull requests.</p>
-                <p class="small text-muted mb-0">That is <strong>CI</strong> (automated build + test). It is not deploying this app to Azure/AWS/GCP—that would be extra CD steps not configured here.</p>
+                <p class="mb-2"><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions</a> runs workflows when events happen on GitHub (push, pull request, schedule, etc.). Workflows live under <code>.github/workflows/</code>.</p>
+                <p class="mb-2">Besides the main build, this repo uses <strong>Dependabot</strong> (<code>.github/dependabot.yml</code>) for weekly dependency update PRs. Separate workflows cover dependency review on PRs, secret scanning, optional semantic PR titles, and nightly mutation testing—each is explained below.</p>
+                <p class="small text-muted mb-0">This automation is <strong>CI</strong> (build + quality gates). Deploying to Azure/AWS/GCP would be extra <strong>CD</strong> steps (not configured here, and Docker is intentionally out of scope).</p>
+            </section>
+
+            <section class="mb-4" aria-labelledby="sec-pipeline">
+                <h2 id="sec-pipeline" class="h5 mb-3">Pipeline steps — what runs and why</h2>
+                <p class="small text-muted mb-3">Locally, <code>mvn verify</code> runs the same Maven phases the CI job relies on. On GitHub, the main workflow also installs Node and runs <strong>Spectral</strong> after tests (needs <code>target/openapi.json</code> from integration tests).</p>
+                <ol class="small mb-0 ps-3 pipeline-steps-list">
+                    <li class="mb-3">
+                        <strong>Spotless (Google Java Format).</strong> Enforces a single formatting style so reviews focus on behavior, not whitespace. Fail here means run <code>mvn spotless:apply</code> locally, then commit.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Checkstyle.</strong> Static style rules (imports, naming, etc.) from <code>config/checkstyle/</code>. Complements Spotless: formatters fix layout; Checkstyle catches structural smells.
+                    </li>
+                    <li class="mb-3">
+                        <strong>JaCoCo prepare-agent.</strong> Attaches the coverage agent before unit tests so execution data is recorded.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Compile + test-compile.</strong> Ensures main and test sources build on a supported JDK (CI uses Temurin <strong>17</strong> and <strong>21</strong> in a matrix).
+                    </li>
+                    <li class="mb-3">
+                        <strong>PMD.</strong> Rule-based bug and smell detection on source code (<code>config/pmd/ruleset.xml</code>). Runs after tests are compiled so analysis stays cheap but accurate enough for teaching defaults.
+                    </li>
+                    <li class="mb-3">
+                        <strong>SpotBugs + FindSecBugs.</strong> Bytecode analysis for likely bugs and a subset of security-oriented patterns. Some findings are suppressed in <code>config/spotbugs/exclude.xml</code> where the tool cannot see application-level guarantees (documented there).
+                    </li>
+                    <li class="mb-3">
+                        <strong>Surefire — unit tests (<code>*Test.java</code>).</strong> Fast tests including <code>WireMockBasicsTest</code>, which shows how to stub HTTP dependencies without hitting real servers.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Package + CycloneDX SBOM.</strong> Produces the runnable jar and a <strong>Software Bill of Materials</strong> (<code>target/bom.json</code>) listing components and versions—useful for supply-chain visibility and audits.
+                    </li>
+                    <li class="mb-3">
+                        <strong>JaCoCo prepare-agent-integration + Failsafe (<code>*IT.java</code>).</strong> Integration tests start Spring Boot (profile <code>test</code>, H2). Coverage from this fork is <strong>appended</strong> to the same execution file so reports include API-level exercise. <code>OpenApiExportIT</code> downloads <code>/v3/api-docs</code> into <code>target/openapi.json</code> for the next step.
+                    </li>
+                    <li class="mb-3">
+                        <strong>JaCoCo report + check.</strong> HTML/XML coverage under <code>target/site/jacoco/</code> and a <strong>minimum line coverage</strong> ratio on the whole bundle so coverage cannot silently regress to zero.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Spectral (CI only).</strong> Lints the exported OpenAPI JSON against <code>.spectral.yaml</code>—catches contract issues (schemas, required fields, operations) before humans rely on wrong docs.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Artifact uploads (CI).</strong> Stores <code>bom.json</code> and JaCoCo HTML per JDK version for download from the Actions run—handy for assignments and debugging coverage locally vs CI.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Dependency review workflow (optional).</strong> Compares dependency changes on PRs to known vulnerabilities when <strong>Dependency graph</strong> is enabled and you set the repository Actions variable <code>ENABLE_DEPENDENCY_REVIEW</code> to <code>true</code>; otherwise the job is skipped so CI stays green.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Secret scan (TruffleHog).</strong> Scans changed commits for leaked credentials. Verified findings should block merges; tune noise via workflow options if a lesson adds intentional test tokens.
+                    </li>
+                    <li class="mb-3">
+                        <strong>Semantic PR title check.</strong> Encourages conventional prefixes (<code>feat:</code>, <code>fix:</code>, <code>chore:</code>, …) so change logs and release notes stay readable. Remove or relax this workflow if your course does not require it.
+                    </li>
+                    <li class="mb-0">
+                        <strong>Nightly PIT (mutation testing).</strong> Profile <code>pitest</code> exercises tests against small mutations in <code>com.mindtek.bookstore.service.*</code>. Slower than normal CI; scheduled so it does not slow every push. Reports upload as workflow artifacts.
+                    </li>
+                </ol>
             </section>
 
             <section class="mb-4" aria-labelledby="sec-cycle">

@@ -18,7 +18,7 @@ This lab repo focuses on **CI** (tests run on GitHub). **CD** is optional and de
 ## Why CI is useful (especially for QA-minded teams)
 
 1. **Fast feedback** — You learn within minutes if `main` would break, instead of discovering it on demo day.
-2. **Repeatable checks** — Same commands every time (`mvn verify`), same JDK on a clean machine (`ubuntu-latest`), fewer “works on my laptop” surprises.
+2. **Repeatable checks** — Same steps every time on a clean runner (`ubuntu-latest`), fewer “works on my laptop” surprises. Mirror locally with **`mvn verify`**.
 3. **Protect the trunk** — Pull requests can **require** green checks before merge (branch protection). Students practice the same discipline as industry repos.
 4. **Living documentation** — The workflow file [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) *is* the agreed definition of “good enough to merge.”
 
@@ -30,23 +30,80 @@ This lab repo focuses on **CI** (tests run on GitHub). **CD** is optional and de
 
 - **Workflow** — YAML file under `.github/workflows/` (we use `ci.yml`).
 - **Job** — A group of steps that run on a **runner** (e.g. `ubuntu-latest`).
-- **Step** — Checkout code, install JDK 17, run `mvn -B verify`.
+- **Step** — Checkout code, install JDKs (**17** and **21** in CI), run `mvn -B verify`, then Spectral on the exported OpenAPI file.
 
-When you open a PR, GitHub shows **Checks**: green ✅ if tests passed, red ❌ if something failed (with logs).
+When you open a PR, GitHub shows **Checks**: green if every step passed, red if something failed (with logs).
 
 ---
 
-## What this project’s CI job does
+## Workflow files (quick map)
 
-File: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
+| File | When it runs | Purpose |
+|------|----------------|---------|
+| [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | Push / PR to `main` or `master` | JDK **17** and **21** matrix; `mvn verify`; Spectral on `target/openapi.json`; uploads SBOM + JaCoCo HTML |
+| [`.github/workflows/dependency-review.yml`](../.github/workflows/dependency-review.yml) | Pull requests | **Optional.** Dependency Review — runs only if repo variable `ENABLE_DEPENDENCY_REVIEW` is `true` *and* [Dependency graph](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-the-dependency-graph) is enabled (see comments in the workflow file). |
+| [`.github/workflows/secrets-scan.yml`](../.github/workflows/secrets-scan.yml) | Push / PR | TruffleHog scan for leaked secrets in changed commits |
+| [`.github/workflows/semantic-pr.yml`](../.github/workflows/semantic-pr.yml) | Pull requests | Validates PR title against Conventional Commits-style prefixes |
+| [`.github/workflows/nightly-pitest.yml`](../.github/workflows/nightly-pitest.yml) | Daily schedule + manual | [PIT](https://pitest.org/) mutation tests (`-Ppitest`); uploads HTML report |
+| [`.github/dependabot.yml`](../.github/dependabot.yml) | Weekly | Opens PRs for Maven + GitHub Actions dependency bumps |
 
-On **push** or **pull_request** to `main` or `master`:
+**Note:** [Dependency review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review) needs **Dependency graph** enabled under repo **Settings → Code security**. This repo’s workflow is **gated** by the Actions variable `ENABLE_DEPENDENCY_REVIEW=true` so CI does not fail when graph is off (see `.github/workflows/dependency-review.yml`). Docker-based deployment is intentionally **not** part of this lab.
 
-1. Checks out your code.
-2. Installs **Temurin JDK 17** (matches this Spring Boot 3 lab).
-3. Runs **`mvn -B verify`** — compiles and runs tests (including `BookApiIT` under the `test` profile).
+---
 
-If any step fails, the workflow fails and the PR should **not** be merged until fixed.
+## What `mvn verify` does (local = CI core)
+
+Run from the repo root:
+
+```bash
+mvn -B verify
+```
+
+Phases and plugins include:
+
+1. **Spotless** (`spotless:check` on `validate`) — Google Java Format on `src/main/java` and `src/test/java`. Fix locally with `mvn spotless:apply`.
+2. **Checkstyle** (`validate`) — [`config/checkstyle/checkstyle.xml`](../config/checkstyle/checkstyle.xml).
+3. **JaCoCo prepare-agent** — Instruments **Surefire** test JVMs; writes `target/jacoco.exec`.
+4. **Compile / test-compile** — Main + test bytecode.
+5. **PMD** (`process-test-classes`) — [`config/pmd/ruleset.xml`](../config/pmd/ruleset.xml).
+6. **SpotBugs + FindSecBugs** (`process-test-classes`) — [`config/spotbugs/exclude.xml`](../config/spotbugs/exclude.xml).
+7. **Surefire** — Unit tests matching `**/*Test.java` (TestNG).
+8. **Package** — Spring Boot repackaged jar + **CycloneDX** SBOM → `target/bom.json`.
+9. **JaCoCo prepare-agent-integration** — Same `jacoco.exec` with **`append=true`** so **Failsafe** coverage merges with unit-test coverage.
+10. **Failsafe** — Integration tests `**/*IT.java`; `OpenApiExportIT` writes **`target/openapi.json`** from `/v3/api-docs`.
+11. **JaCoCo report + check** — HTML under `target/site/jacoco/` and a **minimum line coverage** threshold on the bundle.
+
+Quick checks without integration tests:
+
+```bash
+mvn test
+```
+
+Mutation testing (optional; heavy):
+
+```bash
+mvn -B test-compile org.pitest:pitest-maven:mutationCoverage -Ppitest
+```
+
+The `pitest` profile uses **`pitest-testng-plugin` 1.0.0** alongside **`pitest-maven` 1.17.x** (plugins use independent versions).
+
+---
+
+## CI-only step: Spectral
+
+After `mvn verify`, CI runs:
+
+```bash
+npx --yes @stoplight/spectral-cli lint target/openapi.json --ruleset .spectral.yaml
+```
+
+Rules live in [`.spectral.yaml`](../.spectral.yaml). If this step fails, fix the OpenAPI document produced at runtime or relax rules deliberately (and document why).
+
+---
+
+## Previous simplified CI (removed)
+
+Earlier versions of this repo ran Checkstyle, compile, Surefire, and Failsafe as **separate** Maven invocations. The project now relies on a **single** `mvn verify` so local runs and CI stay aligned.
 
 ---
 
@@ -94,7 +151,7 @@ On GitHub: **Compare & pull request** → target **`main`** (or **`master`**) �
 
 - Open the PR → tab **Checks** (or **Actions** on the repo).
 - You should see workflow **CI** running.
-- Wait until **Maven verify** completes: green ✅ means tests passed.
+- Wait until the **CI** workflow completes for both JDK versions (and optional workflows such as dependency review or semantic PR pass your policy).
 
 **Talking points while it runs**
 
@@ -113,7 +170,7 @@ After review (and green CI):
 Repo **Settings → Branches → Branch protection rule** for `main`:
 
 - Require pull request before merging.
-- Require status checks — select **CI / build** (exact name may vary).
+- Require status checks — select **CI** jobs you care about (the matrix produces one check per JDK, e.g. `build (17)` and `build (21)`), plus any other required workflows.
 
 Students then **cannot** push broken code straight to `main` without failing checks or bypass rules.
 
@@ -124,8 +181,13 @@ Students then **cannot** push broken code straight to `main` without failing che
 | Symptom | What to check |
 |--------|----------------|
 | Workflow never runs | Wrong branch name in `ci.yml` (`main` vs `master`) or PR targets a branch not listed under `on`. |
-| JDK errors | Workflow must use **Java 17** (Spring Boot 3). |
+| JDK errors | CI uses Temurin **17** and **21**; locally match one of those if behavior differs. |
 | Tests pass locally but fail in CI | Same command locally? Run `mvn -B verify`. Time-sensitive tests? This repo avoids flaky clocks in ITs. |
+| Spotless fails | Run `mvn spotless:apply`, commit formatted sources. |
+| Spectral fails | Ensure `mvn verify` completed so `target/openapi.json` exists; fix OpenAPI output or adjust `.spectral.yaml` with team agreement. |
+| Semantic PR check fails | PR title needs conventional prefixes (`feat:`, `fix:`, …); edit the title or disable `.github/workflows/semantic-pr.yml` on your fork. |
+| Mutation / nightly job fails | Run `mvn -B test-compile org.pitest:pitest-maven:mutationCoverage -Ppitest` locally and inspect `target/pit-reports/`. |
+| Dependency review: “not supported” / graph error | Turn on **Dependency graph** (Settings → Code security). Until then, do **not** set `ENABLE_DEPENDENCY_REVIEW`; the workflow skips. To run review after enabling graph, set Actions variable `ENABLE_DEPENDENCY_REVIEW` = `true`. |
 
 ---
 

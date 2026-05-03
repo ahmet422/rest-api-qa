@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Teaching lab: suppress noisy SpotBugs findings common in Spring/JPA demos -->
+<FindBugsFilter>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2,EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="~.*\$\$.*"/>
+    </Match>
+    <!-- JwtService validates secret length before finishing construction; fail-fast is intentional. -->
+    <Match>
+        <Class name="com.mindtek.bookstore.security.JwtService"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <!-- Read-only console: SQL is validated (single statement, allowed prefixes, no DML keywords). -->
+    <Match>
+        <Class name="com.mindtek.bookstore.service.ReadOnlySqlConsoleService"/>
+        <Bug pattern="SQL_INJECTION_JDBC"/>
+    </Match>
+</FindBugsFilter>

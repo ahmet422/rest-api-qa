@@ -71,13 +71,29 @@ Flyway runs migrations `V1__schema.sql` and `V2__seed_books.sql` on startup; `Us
 
 ## Tests
 
+**Full suite (matches GitHub Actions main job — formatters, lint, static analysis, tests, coverage gate, SBOM):**
+
+```text
+mvn verify
+```
+
+- **Formatting:** [Spotless](https://github.com/diffplug/spotless) + Google Java Format on `validate`.
+- **Lint:** [Checkstyle](https://checkstyle.org/) on `validate` ([`config/checkstyle/checkstyle.xml`](config/checkstyle/checkstyle.xml)) — style rules on main + test sources.
+- **Static analysis:** [PMD](https://pmd.github.io/) ([`config/pmd/ruleset.xml`](config/pmd/ruleset.xml)) and [SpotBugs](https://spotbugs.github.io/) + FindSecBugs ([`config/spotbugs/exclude.xml`](config/spotbugs/exclude.xml)) after test compilation.
+- **Coverage:** [JaCoCo](https://www.jacoco.org/jacoco/) merges **Surefire** + **Failsafe** runs into one report and enforces a minimum line ratio on the bundle.
+- **SBOM:** [CycloneDX](https://cyclonedx.org/) Maven plugin writes `target/bom.json` at package time.
+- **Unit tests:** Maven **Surefire** — `**/*Test.java` (e.g. `WireMockBasicsTest`, `ReadOnlySqlConsoleServiceTest`).
+- **Integration tests:** Maven **Failsafe** — `**/*IT.java` (e.g. `BookApiIT`, `OpenApiExportIT` — the latter exports `target/openapi.json` for Spectral).
+
+Quick feedback **without** API integration tests:
+
 ```text
 mvn test
 ```
 
-Uses profile **`test`** (H2). Uses **TestNG** + **REST Assured** (`BookApiIT`).
+**Optional mutation testing (not part of `verify`):** `mvn test-compile org.pitest:pitest-maven:mutationCoverage -Ppitest` — runs on a schedule in GitHub Actions (`nightly-pitest.yml`).
 
-Same checks run on **GitHub Actions** when you push or open a PR to `main` / `master` (workflow: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)). For a classroom-friendly explanation of **CI/CD**, what Actions does here, and a **step-by-step demo** (branch → commit → PR → green checks → merge), see **[`docs/CI_CD_AND_GITHUB_ACTIONS.md`](docs/CI_CD_AND_GITHUB_ACTIONS.md)**. With the app running, **Course reference → CI/CD** summarizes the same ideas at `/reference/ci-cd`.
+CI also runs **Spectral** on the exported OpenAPI file, plus separate workflows for **dependency review**, **secret scanning**, and **semantic PR titles**. Details: **[`docs/CI_CD_AND_GITHUB_ACTIONS.md`](docs/CI_CD_AND_GITHUB_ACTIONS.md)** and **Course reference → CI/CD** (`/reference/ci-cd`).
 
 ## Postman
 

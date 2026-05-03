@@ -8,33 +8,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/reference")
 public class ReferenceController {
 
-    @GetMapping
-    public String index() {
-        return "reference/index";
-    }
+  @GetMapping
+  public String index() {
+    return "reference/index";
+  }
 
-    @GetMapping("/rest-basics")
-    public String restBasics() {
-        return "reference/rest-basics";
-    }
+  @GetMapping("/rest-basics")
+  public String restBasics() {
+    return "reference/rest-basics";
+  }
 
-    @GetMapping("/this-api")
-    public String thisApi() {
-        return "reference/this-api";
-    }
+  @GetMapping("/this-api")
+  public String thisApi() {
+    return "reference/this-api";
+  }
 
-    @GetMapping("/idempotency")
-    public String idempotency() {
-        return "reference/idempotency";
-    }
+  @GetMapping("/idempotency")
+  public String idempotency() {
+    return "reference/idempotency";
+  }
 
-    @GetMapping("/contract")
-    public String contract() {
-        return "reference/contract";
-    }
+  @GetMapping("/contract")
+  public String contract() {
+    return "reference/contract";
+  }
 
-    @GetMapping("/ci-cd")
-    public String ciCd() {
-        return "reference/ci-cd";
-    }
+  @GetMapping("/ci-cd")
+  public String ciCd() {
+    return "reference/ci-cd";
+  }
 }
