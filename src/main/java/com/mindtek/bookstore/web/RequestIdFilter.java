@@ -15,21 +15,21 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Order(Integer.MIN_VALUE)
 public class RequestIdFilter extends OncePerRequestFilter {
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        String id = request.getHeader(RequestIdConstants.HEADER_NAME);
-        if (id == null || id.isBlank()) {
-            id = UUID.randomUUID().toString();
-        }
-        request.setAttribute(RequestIdConstants.REQUEST_ATTRIBUTE, id);
-        response.setHeader(RequestIdConstants.HEADER_NAME, id);
-        MDC.put("requestId", id);
-        try {
-            filterChain.doFilter(request, response);
-        } finally {
-            MDC.remove("requestId");
-        }
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    String id = request.getHeader(RequestIdConstants.HEADER_NAME);
+    if (id == null || id.isBlank()) {
+      id = UUID.randomUUID().toString();
     }
+    request.setAttribute(RequestIdConstants.REQUEST_ATTRIBUTE, id);
+    response.setHeader(RequestIdConstants.HEADER_NAME, id);
+    MDC.put("requestId", id);
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      MDC.remove("requestId");
+    }
+  }
 }

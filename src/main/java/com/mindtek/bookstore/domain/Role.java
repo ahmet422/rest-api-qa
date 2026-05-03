@@ -1,6 +1,6 @@
 package com.mindtek.bookstore.domain;
 
 public enum Role {
-    ADMIN,
-    USER
+  ADMIN,
+  USER
 }

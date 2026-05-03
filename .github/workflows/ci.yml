@@ -1,4 +1,5 @@
-# Runs automated checks on every push and pull request — see docs/CI_CD_AND_GITHUB_ACTIONS.md
+# Full CI for this lab — mirrors local `mvn verify` plus OpenAPI lint.
+# Documented in docs/CI_CD_AND_GITHUB_ACTIONS.md and Course Reference → CI/CD.
 name: CI
 
 on:
@@ -10,16 +11,41 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java-version: ["17", "21"]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: ${{ matrix.java-version }}
           cache: maven
 
-      - name: Run tests (Maven verify)
+      - name: Maven verify (lint, static analysis, tests, coverage, SBOM)
         run: mvn -B verify
+
+      - name: Set up Node (Spectral)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Spectral — lint exported OpenAPI document
+        run: npx --yes @stoplight/spectral-cli lint target/openapi.json --ruleset .spectral.yaml
+
+      - name: Upload CycloneDX SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: bom-java-${{ matrix.java-version }}
+          path: target/bom.json
+
+      - name: Upload JaCoCo HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-java-${{ matrix.java-version }}
+          path: target/site/jacoco/

@@ -15,114 +15,114 @@ import java.time.Instant;
 @Table(name = "books")
 public class Book {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @Column(nullable = false)
-    private String author;
+  @Column(nullable = false)
+  private String author;
 
-    @Column(unique = true)
-    private String isbn;
+  @Column(unique = true)
+  private String isbn;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+  @Column(nullable = false, precision = 10, scale = 2)
+  private BigDecimal price;
 
-    @Column(nullable = false)
-    private int stock;
+  @Column(nullable = false)
+  private int stock;
 
-    @Column(nullable = false, length = 128)
-    private String category;
+  @Column(nullable = false, length = 128)
+  private String category;
 
-    @Column(nullable = false, length = 64)
-    private String language = "English";
+  @Column(nullable = false, length = 64)
+  private String language = "English";
 
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
+  @Column(name = "created_at", nullable = false)
+  private Instant createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+  @Column(name = "updated_at", nullable = false)
+  private Instant updatedAt;
 
-    @PrePersist
-    void prePersist() {
-        Instant now = Instant.now();
-        createdAt = now;
-        updatedAt = now;
-    }
+  @PrePersist
+  void prePersist() {
+    Instant now = Instant.now();
+    createdAt = now;
+    updatedAt = now;
+  }
 
-    @PreUpdate
-    void preUpdate() {
-        updatedAt = Instant.now();
-    }
+  @PreUpdate
+  void preUpdate() {
+    updatedAt = Instant.now();
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public String getTitle() {
-        return title;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public String getAuthor() {
-        return author;
-    }
+  public String getAuthor() {
+    return author;
+  }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+  public void setAuthor(String author) {
+    this.author = author;
+  }
 
-    public String getIsbn() {
-        return isbn;
-    }
+  public String getIsbn() {
+    return isbn;
+  }
 
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
+  public void setIsbn(String isbn) {
+    this.isbn = isbn;
+  }
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+  public BigDecimal getPrice() {
+    return price;
+  }
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+  public void setPrice(BigDecimal price) {
+    this.price = price;
+  }
 
-    public int getStock() {
-        return stock;
-    }
+  public int getStock() {
+    return stock;
+  }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
+  public void setStock(int stock) {
+    this.stock = stock;
+  }
 
-    public String getCategory() {
-        return category;
-    }
+  public String getCategory() {
+    return category;
+  }
 
-    public void setCategory(String category) {
-        this.category = category;
-    }
+  public void setCategory(String category) {
+    this.category = category;
+  }
 
-    public String getLanguage() {
-        return language;
-    }
+  public String getLanguage() {
+    return language;
+  }
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+  public void setLanguage(String language) {
+    this.language = language;
+  }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
 }

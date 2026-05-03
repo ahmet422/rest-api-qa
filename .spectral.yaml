@@ -1,0 +1,9 @@
+# Spectral rules for OpenAPI exported during integration tests (target/openapi.json)
+extends:
+  - spectral:oas
+rules:
+  info-contact: off
+  operation-operationId: warn
+  operation-tags: warn
+  operation-description: off
+  operation-tag-defined: off
