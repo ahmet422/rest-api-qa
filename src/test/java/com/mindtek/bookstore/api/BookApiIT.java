@@ -20,6 +20,8 @@ import org.testng.annotations.Test;
 @ActiveProfiles("test")
 public class BookApiIT extends AbstractTestNGSpringContextTests {
 
+    ///  comment
+
     @LocalServerPort
     private int port;
 
